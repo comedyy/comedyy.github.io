@@ -4,3 +4,5 @@
 - [安卓环境命令行安装](./install_android_env.md)
 - [实用工具](./tools.md)
 - [mac命令行](./mac_command.md)
+- [MingW-w64](./mingw.md)
+- [vscode c++环境搭建](./vscode_cpp.md)
