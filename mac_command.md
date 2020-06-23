@@ -23,3 +23,14 @@
 于是可以用管道把它们连起来：
 `cat xxx.log | grep "LUA_ERROR" -A20` 用来查找错误日志并且显示它包含的堆栈信息（堆栈信息一般在错误信息下面）
 
+## rz && sz （第三方）
+- mac上需要使用brew 安装 `brew install lrzsz`
+- centos 上需要 `yum install lrzsz -y`
+就可以使用他们来上传下载了。
+
+相关链接：[mac上安装iterm2](./mac/iterm2.md)
+
+## md5 && md5sum
+`md5` 是mac版本
+`md5sum` 是linux版本
+
