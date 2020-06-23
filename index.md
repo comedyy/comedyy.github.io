@@ -8,3 +8,4 @@
 - [vscode c++环境搭建](./vscode_cpp.md)
 - [python 相关索引](./python_index.md)
 - [mac 相关](./mac_index.md)
+- [adb 相关](./adb_command.md)

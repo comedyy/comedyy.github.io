@@ -41,3 +41,11 @@
 ## ln && mklink
 `ln`是linux跟mac上的创建链接的方式 `ln -s source/ link/`
 `mklink` 是windows上的创建链接方式 `mklink /j link/ source`
+
+## screen 会话管理
+`screen -ls` 列出所有的screen
+`screen -S NEW_SCREEN` 新建screen
+`screen -r s_exist` 链接到s_exist
+`exit` 销毁screen
+`ctrl + A ,ctrl + D` 切换screen
+
