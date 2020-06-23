@@ -6,3 +6,4 @@
 - [mac命令行](./mac_command.md)
 - [MingW-w64](./mingw.md)
 - [vscode c++环境搭建](./vscode_cpp.md)
+- [python 相关索引](./python_index.md)
