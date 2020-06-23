@@ -34,3 +34,10 @@
 `md5` 是mac版本
 `md5sum` 是linux版本
 
+## du && df
+`df` 是在/bin, 用来统计当前的硬盘用量 `du -h` 用可读性好的方式输出硬盘使用 `-T`还可以查看磁盘的文件类型。`-i`显示[inode](https://www.ruanyifeng.com/blog/2011/12/inode.html)信息。
+`du` 是在/usr/bin，用来计算当前目录的硬盘占用 `-h` 同样是可读性 `-s` 标示读一个目录 `du -sh *`可以输出当前目录所有的文件大小
+
+## ln && mklink
+`ln`是linux跟mac上的创建链接的方式 `ln -s source/ link/`
+`mklink` 是windows上的创建链接方式 `mklink /j link/ source`
