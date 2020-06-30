@@ -29,6 +29,14 @@
 
 其中比较重要的是 `LayougGroup` 这个对象是可以嵌套使用的，原本`LayougGroup`只能控制它的子节点，而如果嵌套使用的话，它可以控制所有的子孙节点。
 
+> 第一层layout实现排序跟控制子节点的高度。
+> 第二层layout控制文字背景的高度
+> 第三层layout控制文字的高度
+> 这样，当文字dirty的时候，会setlayout dirty，进而让所有父节点的ILayoutGroup变dirty。
+> 在重新布局的时候，先会从第一层layoutgroup开始 从叶子节点开始重新查找子节点信息，并计算节点大小，totalMin， totalPreferred, totalFlexible.
+> 最后从根LayoutGroup开始，调整自己的位置（先计算ContentSizeFilter，再LayoutGroup），然后调整子节点的位置。
+> 最后达到动态布局的效果。
+
 这样我们使用`LayougGroup`的嵌套使用，并且每个`LayougGroup`都勾选 `Child Controls Size` 来实现当前需求。
 ![RUNOOB 图标](../img/unity_ui/layoutgroup_recur.png)
 
