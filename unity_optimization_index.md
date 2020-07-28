@@ -1,3 +1,3 @@
 ## Unity 性能优化相关
 
-- [lua 相关](./unity_optimization_index.md)
+- [Profiler Analyzer](./unit_opt/profiler_analyzer.md)
