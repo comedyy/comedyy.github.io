@@ -18,3 +18,4 @@
 - [git 命令行](./git.md)
 - [asyn/await](./asyn_await.md)
 - [shell 相关](./shell.md)
+- [xcode 问题汇总](./xcode_issue.md)
