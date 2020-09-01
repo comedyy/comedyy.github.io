@@ -68,5 +68,5 @@ GPU跟显存的交互的通道，GPU有小块的存储空间，用来加载当�
 - 尽量使用内置函数（优化的比较好，兼容性比较好)如：LinearRgbToLuminance（在unityCG.cginc）
 
 
-
-
+### 脚本相关
+- 去掉代码里面的OnMouse_的回调，只要它在脚本中，无论是否挂到GameObject上，它都会在设备上产生OnMouse_的消耗。
