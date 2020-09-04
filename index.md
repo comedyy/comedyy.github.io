@@ -19,6 +19,6 @@
 - [asyn/await](./asyn_await.md)
 - [shell 相关](./shell.md)
 - [xcode 问题汇总](./xcode_issue.md)
-- [snapdragon profiler 使用](./snapdragon_profiler.md)
+<!-- - [snapdragon profiler 使用](./snapdragon_profiler.md) -->
 - [获取当前pss](./pss.md)
 - [encoding相关](./encoding.md)
