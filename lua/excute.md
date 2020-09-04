@@ -5,7 +5,7 @@
 但是脚本语言是如何运行的。
 
 ### 分析
-为了更好的阅读lua的源码，新建一个[demo工程]("https://github.com/comedyy/lua_code_debug")来运行，这样看的不懂的地方可以调试运行。
+为了更好的阅读lua的源码，新建一个[demo工程](https://github.com/comedyy/lua_code_debug)来运行，这样看的不懂的地方可以调试运行。
 
 ```
 lua_State *state = luaL_newstate();  // 创建一个lua虚拟机
