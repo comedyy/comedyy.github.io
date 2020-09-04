@@ -1,5 +1,5 @@
-## [Remote Opterator（Unity远程对象控制）]("https://github.com/comedyy/RemoteOperatorTool")
-
+## Remote Opterator(Unity远程对象控制)
+[demo]("https://github.com/comedyy/RemoteOperatorTool")
 ## 需求
 在设备中连接profiler中，看到在特定的角度有很大的渲染消耗，主要消耗在GPU上，目测应该是重绘太多或者是shader太复杂了，需要找到是哪个物件导致的渲染消耗。
 
