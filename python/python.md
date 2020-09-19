@@ -21,3 +21,7 @@ file_list = [f for f in glob.glob(patten, recursive=True)]
 create_time = os.stat(x)[stat.ST_CTIME]  #获取文件创建的秒数
 current_time = int(time.time()) #当前时间
 ```
+
+## 执行
+python -u xxx.py 可以在jenkins上立即输出日志
+pythonw xxx.py 可以不弹出框，在后台运行
