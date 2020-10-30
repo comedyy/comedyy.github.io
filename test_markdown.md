@@ -111,3 +111,10 @@ $\infty$
 \.   英文句点
 \!   感叹号
 
+```mermaid!
+pie title Pets adopted by volunteers
+  "Dogs" : 386
+  "Cats" : 85
+  "Rats" : 35
+```
+
