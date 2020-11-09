@@ -21,9 +21,11 @@ requests.post("http://10.0.17.10:8080/job/android_build/buildWithParameters?test
 
 
 
-## 2.0 jenkins gitlab webhook
+## 2. jenkins gitlab webhook
 
 jenkins安装gitlab插件，在项目配置里面就可以找到一个`Build when a change is pushed to GitLab`选项，勾选之后，会显示webhook的URL。在`高级`选项中，点击 `Generate`生成Token。
 
 在gitlab中，点击项目->设置->webHook，填入URL跟Token，再选择事件。之后可以通过点击已经生成的webhook的测试按钮，进行测试。
+
+
 
