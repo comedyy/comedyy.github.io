@@ -1,0 +1,71 @@
+﻿
+using UnityEngine;
+using UnityEditor;
+ 
+public class MatObseletePropertyWindow : EditorWindow
+{
+    public static string assetFolderPath = "Assets/Scenes";
+    [MenuItem ("Tools/移除材质中的废弃属性")]
+    public static void ShowWindow () {
+        EditorWindow thisWindow = EditorWindow.GetWindow(typeof(MatObseletePropertyWindow));
+        thisWindow.titleContent = new GUIContent("统计并移除材质中的无用属性");
+        thisWindow.position = new Rect(Screen.width/2, Screen.height/2, 600, 1000);
+    }
+ 
+    public static void ClearMatObseleteProperty()
+    {
+        string projectPath = Application.dataPath.Replace("Assets", "");
+        assetFolderPath = assetFolderPath.Replace(projectPath, "");
+        var matList = AssetDatabase.FindAssets("t:prefab", new[] {assetFolderPath});
+ 
+        foreach(var i in matList)
+        {
+
+            // EditorUtility.DisplayProgressBar("材质属性移除统计文件", "正在写入统计文件中...", ix/shaderList.Length);
+            var path = AssetDatabase.GUIDToAssetPath(i);
+            Debug.Log(path);
+
+            ParticleSystem system = AssetDatabase.LoadAssetAtPath(path, typeof(ParticleSystem)) as ParticleSystem;
+            if (system)
+            {
+                ParticleSystemRenderer renderer = system.GetComponent<ParticleSystemRenderer>();
+                if (renderer.renderMode != ParticleSystemRenderMode.Mesh)
+                {
+                    Debug.Log(renderer.renderMode);
+                    renderer.mesh = null;
+                    EditorUtility.SetDirty(renderer);
+                }
+            }
+        }
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+    }
+    private static void RemoveElement(Material mat, string spName, SerializedProperty saveProperty){
+        SerializedProperty property = saveProperty.FindPropertyRelative(spName);
+            for(int i = property.arraySize - 1; i >= 0; i--){
+                var prop = property.GetArrayElementAtIndex(i);
+                string propertyName = prop.displayName;
+                if (!mat.HasProperty(propertyName))
+                {
+                    property.DeleteArrayElementAtIndex(i);
+                    Debug.Log("移除属性名称" + propertyName);
+                }
+            }
+    }
+    void OnGUI()
+    {
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField("选择文件夹");
+        EditorGUILayout.TextField(assetFolderPath);
+        if (GUILayout.Button("选择"))
+        {
+            assetFolderPath = EditorUtility.OpenFolderPanel("选择文件夹", assetFolderPath, "");
+        }
+        EditorGUILayout.EndHorizontal();
+ 
+        if (GUILayout.Button("确定") && assetFolderPath != null)
+        {
+            ClearMatObseleteProperty();
+        }
+    }
+}
