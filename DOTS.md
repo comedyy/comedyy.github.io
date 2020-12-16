@@ -55,3 +55,79 @@ ECS中有一个World对象。
    它需要时很少变动的对象。EntityManager.GetAllUniqueSharedComponents() 这个api来查询。内存开销较小。
 
    
+   
+   这里重点讲一下StructBaseEcs。
+   
+   
+   
+   ```
+   EcsWorld _world;		// world，里面包含Entity跟Component
+   EcsSystems _systems;
+   
+   // 初始化
+   _world = new EcsWorld();
+   _systems = new EcsSystems(_world);
+   _systems
+   .Add(new MoveSystem())
+   .OneFrame<ScoreChangeEvent> () // ScoreChangeEvent 的这个component是一个一帧的对象，添加之后下一帧移除。
+   .Init(); 	// MoveSystem就是一个移动相关的system。
+   
+   // 每帧update
+   _systems?.Run();
+   
+   // 析构
+   if (_systems != null)
+   {
+       _systems.Destroy();
+       _systems = null;
+       _world.Destroy();
+       _world = null;
+   }
+   
+   // 定义component
+   public struct Location	// 位置
+   {
+       public Vector2I position;
+       public Vector2I rotation;
+   }
+   public struct InputDir	// 方向
+   {
+       public Vector2I dir;
+   	public List<EcsComponentRef<SnakeSegment>> Body; // EcsComponentRef 是一个struct，包含着这个Componnet的引用。我为了减少拷贝才这么做的吧。毕竟EcsComponentRef很小， 通过Body[i].UnRef() 获取数据。
+   }
+   
+   // 定义system
+   // 还有IEcsDestroySystem，IEcsPostDestroySystem， IEcsInitSystem， IEcsPreInitSystem。
+   public class MoveSystem : IEcsRunSystem							
+   {
+       readonly EcsFilter<Location, InputDir> _filter = null;		// 筛选器，动态注入进去的。
+   	readonly EcsFilter<Score>.Exclude<ScoreChangeEvent> _scoreUiFilter = null; // 包含Score组件，不包含ScroeChangeEvent。
+   
+       public void Run()
+       {
+           foreach (var idx in _filter)				// 遍历所有包含Location跟InputDir的对象
+           {
+               ref var entity = ref _filter.GetEntity(idx);	// 拿取Entity
+               ref var location = ref _filter.Get1(idx);		// 拿去Entity的位置信息
+               ref var input = ref _filter.Get2(idx);			// 拿去Entitty的移动方向
+   
+               if (input.dir.x != 0 || input.dir.y != 0)
+               {
+                   location.rotation = input.dir;
+               }
+               location.position += input.dir * Define.DELTATIME;	// 修改component数据
+           }
+       }
+   }
+   
+   // 是否存在组件
+   bool exist = ref _world.NewEntity ().Has<ScoreChangeEvent> ();
+   // 添加一个component
+   ref var changeScore = ref _world.NewEntity ().Get<ScoreChangeEvent> ();
+   
+   
+   ```
+   
+   
+   
+   
