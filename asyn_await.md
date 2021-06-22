@@ -68,3 +68,120 @@ static async void asyncRun()
 ```
 
 这样写应该会更好，至少它不会阻塞主线程了。
+
+ 
+
+# 内部原理
+
+先上代码：
+
+```c#
+
+class JJ : 
+// 或者是ICriticalNotifyCompletion， 它的回回调是 UnsafeOnCompleted
+{
+    int i = 0;
+    public bool IsCompleted 
+    {
+        get{
+            Debug.LogError("isComplete");
+            i++;
+            return i > 10;
+        }
+    }
+
+    public string GetResult()
+    {
+        Debug.LogError("getResult");
+        return "KKk";
+    }
+
+    public void OnCompleted(Action continuation)
+    {
+        continuation();// 继续往下执行
+        Debug.Log("oncomplete");
+    }
+
+    public void UnsafeOnCompleted(Action continuation)
+    {
+        continuation();	// 继续往下执行
+        Debug.Log("unsafeOnCompleted");
+    }
+}
+
+class KK
+{
+    public JJ GetAwaiter()
+    {
+        return new JJ();
+    }
+}
+
+public class NewBehaviourScript : MonoBehaviour
+{
+    // Start is called before the first frame update
+    async void Start()
+    {
+        // await跟着一个对象，这个对象需要有一个GetAwaiter的函数。返回一个Awaiter对象，这个Awaiter对象需要继承ICriticalNotifyCompletion, 或者是INotifyCompletion，并且还需要bool IsCompleted {get} 跟     public string GetResult(){} 函数。
+        // 这awater 对象是给编译器用的，因为async跟await这个关键字其实就是个语法糖，在编译代码的时候会生成新的代码。然后调用awaiter里面的函数。外部不建议调用awaiter。
+        var x = await new KK();		
+        Debug.Log(x);
+    }
+}
+
+```
+
+编译器生成之后的代码：
+
+```
+	// NewBehaviourScript脚本
+	[AsyncStateMachine(typeof(<Start>d__0))]
+	[DebuggerStepThrough]
+	private void Start()
+	{
+		<Start>d__0 stateMachine = new <Start>d__0();
+		stateMachine.<>4__this = this;
+		stateMachine.<>t__builder = AsyncVoidMethodBuilder.Create();
+		stateMachine.<>1__state = -1;
+		AsyncVoidMethodBuilder <>t__builder = stateMachine.<>t__builder;
+		<>t__builder.Start(ref stateMachine);
+	}
+
+	// <Start>d__0.cs	编译器生成的stateMachine对象的代码。
+	private void MoveNext()
+	{
+		int num = <>1__state;
+		try
+		{
+			JJ awaiter;
+			if (num != 0)
+			{
+				awaiter = new KK().GetAwaiter();
+				if (!awaiter.IsCompleted)
+				{
+					num = (<>1__state = 0);
+					<>u__1 = awaiter;
+					<Start>d__0 stateMachine = this;
+					<>t__builder.AwaitOnCompleted(ref awaiter, ref stateMachine);
+					return;
+				}
+			}
+			else
+			{
+				awaiter = (JJ)<>u__1;
+				<>u__1 = null;
+				num = (<>1__state = -1);
+			}
+			<>s__2 = awaiter.GetResult();
+			<x>5__1 = <>s__2;
+			<>s__2 = null;
+			Debug.Log((object)<x>5__1);
+		}
+```
+
+
+
+
+
+编译器会为async，await生成一份代码，里面包含一个IStateMachine对象，一个对应的builder。然后使用这一份生成的代码去调用awater，来实现异步操作。
+
