@@ -80,3 +80,41 @@ E，F，G，H，都有gc
 匿名函数居然还有提高效率的功能。
 尤其是在无引用local对象的时候，它会生成静态delegation，而其他方式的调用则会生成新的delegation。
 
+
+## 使用委托来优化反射（静态函数跟成员函数）
+```c#
+
+public class A
+{
+    public void TT(int a)
+    {
+        Debug.Log("TT");
+    }
+}
+
+public class CreateDelegation : MonoBehaviour
+{
+    public delegate void PPP(int a);
+    public delegate RaycastHit[] RaycastAllCallback(Ray r, float f, int i);
+    public RaycastAllCallback raycast3DAll = null;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        MethodInfo method = typeof(A).GetMethod("TT", new[]{typeof(int)});
+        if(method != null)
+        {
+            A a = new A();
+            var action = (PPP) Delegate.CreateDelegate(typeof(PPP), a, method);
+            Debug.Log(action);
+        }
+  
+        var raycastAllMethodInfo = typeof(Physics).GetMethod("RaycastAll", new[] {typeof(Ray), typeof(float), typeof(int)});
+        if (raycastAllMethodInfo != null)
+            raycast3DAll = (RaycastAllCallback)Delegate.CreateDelegate(typeof(RaycastAllCallback), raycastAllMethodInfo);
+        Debug.Log(raycast3DAll);
+
+    }
+}
+
+```
