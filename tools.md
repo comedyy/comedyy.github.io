@@ -7,3 +7,10 @@
     >[dism++](https://www.chuyu.me/en/index.html)(windows)
 - 网卡模拟器
     >Network-Emulator-Toolkit-x64(windows)
+
+- ilspy c# dll反编译工具
+    >[windows](https://github.com/icsharpcode/ILSpy) 
+    >[mac](https://github.com/icsharpcode/AvaloniaILSpy)
+
+- ildasm il反编译工具
+    >[mac](https://www.nuget.org/packages/dotnet-ildasm/)
