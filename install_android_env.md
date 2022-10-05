@@ -10,7 +10,7 @@
 ![目录图标](./img/install_android_env/command_list.png)
 
 我们选择自己需要的版本下载
-`./tools/bin/sdkmanager  "platforms;android-29" "build-tools;29.0.2" "ndk;16.1.4479499"`
+`./tools/bin/sdkmanager  "platforms;android-33" "build-tools;33.0.0" "ndk;25.1.8937393"`
 
 等待下载完成。
 
