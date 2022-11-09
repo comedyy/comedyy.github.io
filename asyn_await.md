@@ -77,11 +77,13 @@ static async void asyncRun()
 
 ```c#
 
-class JJ : 
+class JJ : ICriticalNotifyCompletion
 // 或者是ICriticalNotifyCompletion， 它的回回调是 UnsafeOnCompleted
 {
     int i = 0;
-    public bool IsCompleted 
+    // 如果返回true，不会回调 UnsafeOnCompleted，
+    // 如果返回false，会调用UnsafeOnCompleted，把回调传给你， 让你自己爱怎么做怎么做，然后做完记得回调函数就是了
+    public bool IsCompleted         
     {
         get{
             Debug.LogError("isComplete");
@@ -90,21 +92,24 @@ class JJ :
         }
     }
 
+    // 返回给外部的返回值，await JJ()的返回值。这个返回值类型随意定义，你定义什么外面就获得什么。
     public string GetResult()
     {
         Debug.LogError("getResult");
         return "KKk";
     }
 
+    // IsCompelte == false的时候，并且无ICriticalNotifyCompletion接口的时候调用
     public void OnCompleted(Action continuation)
     {
-        continuation();// 继续往下执行
+        continuation();// 继续往下执行， 更正确的做法是保存起来，等任务完成的时候再回调
         Debug.Log("oncomplete");
     }
 
+    // IsCompelte == false的时候，并且是ICriticalNotifyCompletion接口的时候调用， 
     public void UnsafeOnCompleted(Action continuation)
     {
-        continuation();	// 继续往下执行
+        continuation();	// 继续往下执行， 更正确的做法是保存起来，等任务完成的时候再回调
         Debug.Log("unsafeOnCompleted");
     }
 }
@@ -128,6 +133,8 @@ public class NewBehaviourScript : MonoBehaviour
         Debug.Log(x);
     }
 }
+
+可以查看Unitask的实现。
 
 ```
 
@@ -185,3 +192,16 @@ public class NewBehaviourScript : MonoBehaviour
 
 编译器会为async，await生成一份代码，里面包含一个IStateMachine对象，一个对应的builder。然后使用这一份生成的代码去调用awater，来实现异步操作。
 
+
+
+## Unity中的实现
+async void xxx(){
+    await Task.Delay(1);
+    Debug.Log(1);
+}
+
+你会发现这个Debug.Log(1)会在主线程上执行，因为unity帮我们处理了回调的线程问题。它会在 UnitySynchronizationContext 中回调。
+如果你在dotnetcore上运行，那它的回调是直接在线程池上的。
+
+同样UniTask的实现机制是这个日志会在主线程上，因为它在OnCOmplete中缓存了回调，在unity的生命周期回调中，执行这些回调。
+Unitask比线程的Task有更好的内存表现。 同时实现了unity中各种异步行为的等待。
