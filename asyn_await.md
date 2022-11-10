@@ -217,3 +217,94 @@ ThreadStart start = new ThreadStart(()=>{
         GameObject oo = new GameObject("oo");  // 这个时候已经在主线程了，可以使用unity api了。
     }, null);
 });
+
+
+## T可以返回给Task<T>
+
+为什么 async Task<int> 可以返回一个int，
+async Task<int> GetResult()
+{
+    await Task.Delay(1);
+    return 1;
+}
+
+完全没有编译错误。 1 可以强转给 Task<int>，非常难理解。通过查看Unitask的源码发现，因为UniTask有一个属性
+`[AsyncMethodBuilder(typeof(AsyncUniTaskMethodBuilder))]` 有这个宏的时候，说明这个异步操作有个Builder=>AsyncUniTaskMethodBuilder,这个builder里面有个Property:
+```
+ public UniTask<T> Task
+{
+    [DebuggerHidden]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    get
+    {
+        if (runnerPromise != null)
+        {
+            return runnerPromise.Task;
+        }
+        else if (ex != null)
+        {
+            return UniTask.FromException<T>(ex);
+        }
+        else
+        {
+            return UniTask.FromResult(result);
+        }
+    }
+}
+```
+这样就可以把T强转成UniTask<T>。所以你可以把T返回给UniTask<T>。
+
+## 关于异常的问题
+为什么有时候可以打印日志，有时候没有。
+当触发异常的时候，就会系统就会调用 
+```
+// 3. SetException
+[DebuggerHidden]
+[MethodImpl(MethodImplOptions.AggressiveInlining)]
+public void SetException(Exception exception)
+{
+    if (runnerPromise == null)
+    {
+        ex = exception;
+    }
+    else
+    {
+        runnerPromise.SetException(exception);
+    }
+}
+```
+会给这个UniTask挂一个Exception。
+当我们的task是有await的时候，它会执行GetResult()函数，在GetResult函数中，把它给抛出来。而我们如果没有执行await的时候，它不会执行GetResult(),就不会抛异常。
+```
+var x = await KK();
+
+async UniTask<int> KK()
+{
+    await UniTask.Yield();
+
+    throw new System.Exception("2341");
+    return 1;
+}
+
+```
+
+但是你发现 UniTaskVoid 则不是这个逻辑，它不管有没有await，都会抛出异常。 UniTaskVoid 跟UniTask使用的是不同的Builder，不同builder里面的实现不同。因为UniTaskVoid不需要GetResult(),所以
+在SetException的时候，直接抛异常
+```
+public void SetException(Exception exception)
+{
+    ..... // some code here
+    UniTaskScheduler.PublishUnobservedTaskException(exception);
+}
+```
+
+UniTask使用的是：AsyncUniTaskMethodBuilder
+UniTaskVoid 使用的是： AsyncUniTaskVoidMethodBuilder
+
+总结：
+UniTask因为需要获得返回值，所以只会在await的时候才抛出异常。 UniTaskVoid 不需要返回值，所以可以直接抛出异常。
+UniTask就是为了返回值而存在的，所有的await都必须有GetResult(),所以我感觉把异常放在GetResult()抛也是合理。
+还有一点需要注意的是，虽然UniTask如果没有await，不会抛出异常，但是在gc的时候，其实还是会把异常抛出来的。（析构对象的时候）。
+
+## await跟没有await的区别：
+应该只是差一个GetResult()的调用。
