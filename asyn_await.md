@@ -205,3 +205,15 @@ async void xxx(){
 
 同样UniTask的实现机制是这个日志会在主线程上，因为它在OnCOmplete中缓存了回调，在unity的生命周期回调中，执行这些回调。
 Unitask比线程的Task有更好的内存表现。 同时实现了unity中各种异步行为的等待。
+
+UnitySynchronizationContext 继承自 SynchronizationContext, 目前看是从其他线程往主线程调用函数需要通过这个对象。
+
+
+var current = SynchronizationContext.Current;
+ThreadStart start = new ThreadStart(()=>{
+    // 进入其他线程
+    current.Post((o)=>{
+        Debug.Log("111");
+        GameObject oo = new GameObject("oo");  // 这个时候已经在主线程了，可以使用unity api了。
+    }, null);
+});
