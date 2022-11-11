@@ -307,4 +307,19 @@ UniTask就是为了返回值而存在的，所有的await都必须有GetResult()
 还有一点需要注意的是，虽然UniTask如果没有await，不会抛出异常，但是在gc的时候，其实还是会把异常抛出来的。（析构对象的时候）。
 
 ## await跟没有await的区别：
-应该只是差一个GetResult()的调用。
+应该只是差一个GetResult()的调用。GetResult()的返回值就是await的返回值，有时候发现有些对象是没有返回值的。
+```
+var x = GetInt();   // x是一个Task<int>
+var i = await x;
+
+async Task<int> GetInt()
+    {
+        Debug.Log("Enter");
+        await Task.Delay(1);
+        return 1;
+    }
+}
+
+```
+那 async void 跟 async Task 有什么区别吗。
+因为返回值是void，所以这个函数无法被await，只能作为一个异步行为。 而那个Task的函数，是可以被await的。
