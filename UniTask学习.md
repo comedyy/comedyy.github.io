@@ -9,7 +9,7 @@ UniTask.DelayFrame(100)
 UniTask.Delay(TimeSpan.FromSeconds(10), ignoreTime)
 
 // replacement of yield return null
-await UniTask.Yield();
+await UniTask.Yield();   // 这个不一定等同于 yield return null, 要看Yield()的参数时机。
 await UniTask.NextFrame();
 
 // replacement of WaitForEndOfFrame(requires MonoBehaviour(CoroutineRunner))
@@ -114,8 +114,43 @@ var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancelTo
 
 
 ## Progress
+有些异步操作的ToUniTask()可以传入 IProgress<T>，用来显示进度的回调。
+使用UniTask自带的 Progress.Create 和 Progress.CreateOnlyValueChanged 可以提高效率，比较轻量级。
 
+## Timing 
+UniTask 定义了很多种的Timing点，ToUniTask 跟 WithCancellation 都需要指定在哪个timing点回调。
+不过AsyncOperation UniTask本身就给他们实现了 GetAwaitor，这个awaitor是在这些异步操作在自己的回调Timing点回调的（unity定义的Timing点），不需要指定Timing点。
+所以会有一个问题。如果你的LoadSceneAsync使用了ToUniTask或者WithCancellation，并在指定的Timing点回调。那么它的回调可能会玩与场景自己的`Start`。因为场景的start是在EarlyUpdate.ScriptRunDelayedStartupFrame（Unity的timing点）。
 
+存在问题： Unity的ECS框架可能会让它不工作。如果它在Unitask之后初始化。因为它会重新设置 PlayerLoop。所以你可能需要重新初始化。
 
+默认的初始化会把所有的timing点加入，你可以初始化你自己有用的timing点。
+```
+var loop = PlayerLoop.GetCurrentPlayerLoop();
+PlayerLoopHelper.Initialize(ref loop, InjectPlayerLoopTimings.Minimum); // minimum is Update | FixedUpdate | LastPostLateUpdate
+```
 
+## UniTaskTracker
+用来监控内存泄漏问题。
 
+## 插件支持
+TextMeshPro
+Addressable
+Dotween 
+```
+// sequential
+await transform.DOMoveX(2, 10);
+await transform.DOMoveZ(5, 20);
+
+// parallel with cancellation
+var ct = this.GetCancellationTokenOnDestroy();
+
+await UniTask.WhenAll(
+    transform.DOMoveX(10, 3).WithCancellation(ct),
+    transform.DOScale(10, 3).WithCancellation(ct));
+```
+
+## 异步linq，看不懂
+
+## Unity Test Runner支持
+UniTask.ToCoroutine 桥接
