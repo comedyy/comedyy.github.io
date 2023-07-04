@@ -14,3 +14,6 @@
 
 - ildasm il反编译工具
     >[mac](https://www.nuget.org/packages/dotnet-ildasm/)
+
+- windows下的好用工具
+    >[powerToy](https://github.com/microsoft/PowerToys)
