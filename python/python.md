@@ -34,3 +34,5 @@ print(sys.stdout.encoding) # 使用来输出当前的stdout的接收的编码。
 我们需要把stdout的编码方式修改成utf8，这样它接收到输出的buffer对象的时候，使用utf8的方式来解析收到的输出buffer。
 sys.stdout.reconfigure(encoding='utf-8')
 
+## pywin32
+如果要安装win32gui, 安装pywin32就可以了。
