@@ -9,9 +9,11 @@
 8. 不要再job中抛事件， 会导致消息顺序不对，进而导致因为随机数不同 效果触发不同。
 9. system最好使用jobComponentSystem，并且使用WithReadonly把外部的变量导入到Foreach中，这样减少gc，同时burst加速。
 10. job一定要complete。
+11. dictionary 的遍历不一定保证正确，遇到一个删除了又添加，添加了又删除了，遍历结果不一样的顺序。
 
 
 
 ## 不一致情况排查记录。
 1. 发现editor下的MainLogicSync的输出是同步的，但是pc跟Editor不同步。 请检查是否是Editor的Burst开关未打开。
 2. 如果发现preMove是正常，preRvo是错误， 请检查move跟lookat操作是否同步。
+ 
