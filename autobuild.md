@@ -2,6 +2,7 @@
 1. 使用unityapi 生成打包代码
 2. 使用xcodebuild命令生成achive包
 3. 使用xcodebuild命令生成ipa包。
+    3.1 需要plist来生成ipa包，主要描述了导出的参数。
 4. 对应分发。
     4.1 如果是appstore包，使用`xcrun altool`命令上传appstore。
         这个命令需要一个key，需要appstore的账号管理者才能去appstore后台申请的。
