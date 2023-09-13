@@ -70,3 +70,24 @@ GPU跟显存的交互的通道，GPU有小块的存储空间，用来加载当�
 
 ### 脚本相关
 - 去掉代码里面的OnMouse_的回调，只要它在脚本中，无论是否挂到GameObject上，它都会在设备上产生OnMouse_的消耗。
+
+### animator消耗过多。
+- 控制animator的数量
+- 注意animator的cullingmode。有些animator对象缓冲池子把它放到了屏幕外，但是这个culling没设置，就会大量消耗。
+
+### ui相关
+- 如果是CanvasUpate.PreRender，那么大概率是ui刷新了，重新生成网格，需要注意不要每帧刷新。
+- EventSystem消耗问题，它的流程是 1. 遍历所有的raycaster，找出需要处理的ui，2. 对这个ui抛出drag消息。 主要消耗再第一部分，但是第二部分的消耗需要拆分出来，放到逻辑处理模块做。
+- ugui需要重新生成网格，如果ui的元素重绘，或者是元素的位置，缩放，旋转改变了的话。 我理解的是unity会把ui元素的子mesh缝合起来，做一个缝合怪。位置或者子网格变了的话，缝合怪也需要重新制作mesh。
+
+
+### 特效相关
+- 如果的话，跟animator一样，都有一个culling选项。默认是automatic，这个是指如果是loop特效在屏幕外就停止simulate，非loop的还会继续simulate。如果想要在屏幕外的特希奥直接停止，那么用pause这个culling选型。
+- 一次性特效一般情况下是要有个脚本来控制它被放入缓存池子。这个需要把它弄精确。 => 把duration 时间 = startLifeTime,这样应该可以更好的控制粒子的生命周期。
+- 我看很多特效有一个空的root特效，这个空的特效同样消耗性能。因为它没有renderer，所以它不会被cull，所以每帧都在simulate，如果在屏幕外的话。
+- 使用ParticleSystem.Stop(true, StopEmitAndClear) 可以让ParticleSystem（粒子发射器）完全没有了消耗（simulation跟render）。
+    - particlesystem有个duration是粒子发射器的生命周期。 还有一个startLifeTime， 这个是粒子的生命周期。当这两个周期都走完了之后，粒子才完全无消耗。
+    - 所以需要好好设置好duration
+- 所以是否可以考虑弄一个特效pool。它就放在很远的地方，然后它不关闭，只stop。
+- prewarm需要好好的评估，不一定所有的loop特效都需要。它有性能问题。
+- 特效氛围procudual模式跟nonprocedual模式，nonprocedual会无法被cull。
