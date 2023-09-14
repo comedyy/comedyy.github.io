@@ -84,10 +84,12 @@ GPU跟显存的交互的通道，GPU有小块的存储空间，用来加载当�
 ### 特效相关
 - 如果的话，跟animator一样，都有一个culling选项。默认是automatic，这个是指如果是loop特效在屏幕外就停止simulate，非loop的还会继续simulate。如果想要在屏幕外的特希奥直接停止，那么用pause这个culling选型。
 - 一次性特效一般情况下是要有个脚本来控制它被放入缓存池子。这个需要把它弄精确。 => 把duration 时间 = startLifeTime,这样应该可以更好的控制粒子的生命周期。
-- 我看很多特效有一个空的root特效，这个空的特效同样消耗性能。因为它没有renderer，所以它不会被cull，所以每帧都在simulate，如果在屏幕外的话。
+- 我看很多特效有一个空的root特效，这个空的特效同样消耗性能。因为它没有renderer，所以它不会被cull，所以每帧都在simulate，如果在屏幕外的话。但是duration到了之后，同样会停止消耗。
 - 使用ParticleSystem.Stop(true, StopEmitAndClear) 可以让ParticleSystem（粒子发射器）完全没有了消耗（simulation跟render）。
-    - particlesystem有个duration是粒子发射器的生命周期。 还有一个startLifeTime， 这个是粒子的生命周期。当这两个周期都走完了之后，粒子才完全无消耗。
-    - 所以需要好好设置好duration
+    - particlesystem有个duration是粒子发射器的生命周期。 还有一个startLifeTime， 这个是粒子的生命周期。当这两个周期都走完了之后，粒子才完全无消耗
+    - 所以需要好好设置好duration, 实际测试中，iphone6s上的特效性能提升1ms（冰飞弹）
+    - 发现空的粒子发射器似乎有setpass？确实如此，duration如果还在的话，就还有setpass消耗。但是没有render的消耗。
 - 所以是否可以考虑弄一个特效pool。它就放在很远的地方，然后它不关闭，只stop。
 - prewarm需要好好的评估，不一定所有的loop特效都需要。它有性能问题。
 - 特效氛围procudual模式跟nonprocedual模式，nonprocedual会无法被cull。
+- 试试particlesystem的dynamicbatching，思路是给每个特效弄一个orderinlayer，这样提升DynamicBatch的能力。
