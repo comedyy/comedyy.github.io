@@ -10,7 +10,7 @@
 9. system最好使用jobComponentSystem，并且使用WithReadonly把外部的变量导入到Foreach中，这样减少gc，同时burst加速。
 10. job一定要complete。
 11. dictionary 的遍历不一定保证正确，遇到一个删除了又添加，添加了又删除了，遍历结果不一样的顺序。
-
+12. nan在iphone6s跟iphone7上的在burst的加持下，行为不一致。
 
 
 ## 不一致情况排查记录。
