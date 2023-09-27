@@ -1,0 +1,14 @@
+### Quaternion
+
+LookAtRotation(var forward, var upward)
+通过upward跟forward计算一个旋转状态。
+1. forward完全控制z轴方向，这个时候x,y轴所在的平面已经确定出来了。
+2. 通过forward跟upward的平面，确定出x轴的方向。
+3. 通过forward跟x轴的方向，确定出y轴方向。
+
+math.cross 可以通过一个平面来计算出平面的法线。这个确实很神奇。
+通过forward跟upward的平面计算出x轴。
+通过forward跟x轴计算出y轴。
+
+3D:右手定则 似乎会一直忘记。右手定则就是 结果=大拇指，计算过程=其他四个手指的方向。 aXb 就是四个手指从a扫向b，然后大拇指就是结果的方向。
+2D:
