@@ -16,3 +16,6 @@ iterm2是mac上的Terminal的替代品，有更多的功能。
 
 ## hotkeys
 这个使用使用到了mac的控制功能，需要把iterm2加入到控制列表。同时在 `Preferences->Keys->HotKeys` 选择你要的快捷键，这样你就可以在其他的界面通过快捷键唤起你的iterm2。
+
+设置iterm2默认打开.sh文件：
+右键.sh文件->显示简介->修改打开方式。
