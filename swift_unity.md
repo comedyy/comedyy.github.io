@@ -37,3 +37,4 @@ framework module UnityFramework {
 不过 后面遇到一个问题：
 暴露UnityInterface之后发现xcode编译报错。UnityInterface中的类型被定义多次了。（真几把噩梦，最怕这种定义多次的报错）虽然知道是哪里又多加了头文件，找不到。
 后面看了打包日志，发现是unityad里面加了一个没用使用的header。 把它去掉就行了。
+
