@@ -93,3 +93,8 @@ GPU跟显存的交互的通道，GPU有小块的存储空间，用来加载当�
 - prewarm需要好好的评估，不一定所有的loop特效都需要。它有性能问题。
 - 特效氛围procudual模式跟nonprocedual模式，nonprocedual会无法被cull。
 - 试试particlesystem的dynamicbatching，思路是给每个特效弄一个orderinlayer，这样提升DynamicBatch的能力。
+- 特效的关闭，如果很频繁的使用，最好使用ParticleSystem.Stop(), ParticleSystem.Play()
+- 似乎特效在屏幕外activetrue的时候，不会考虑culling。再调用一次Play() 貌似就好了
+- PaticleSystem.UpdateBoundVolume()这个消耗似乎是在一直改变 particle的位置导致的。我感觉跟non-procedual的特效，它的每帧都需要重新计算包围盒，而 procedual的，不需要每帧计算local的包围盒。
+
+

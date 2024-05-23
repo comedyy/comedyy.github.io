@@ -129,5 +129,10 @@ ECS中有一个World对象。
    ```
    
    
+
+   #### 系统化学习dots。
    
    
+   使用TransformAccessArray来提高多线程设置transform的能力。
+   1. TransformAccessArray, TransformAccess, IJobParallelForTransform
+   https://docs.unity3d.com/ScriptReference/Jobs.IJobParallelForTransform.html。
