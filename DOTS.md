@@ -136,3 +136,14 @@ ECS中有一个World对象。
    使用TransformAccessArray来提高多线程设置transform的能力。
    1. TransformAccessArray, TransformAccess, IJobParallelForTransform
    https://docs.unity3d.com/ScriptReference/Jobs.IJobParallelForTransform.html。
+
+
+
+   unity 的内存管理都是走Native那块的内存。
+1. 申请一份64块chunk，每隔chunk = 16k，那么一次性生成 1M的内存。
+2. 每个chunk给每个archtype使用，chunk里面已经计算好了 可以几个entity，以及每个component的起始位置，大小。 还是跟其它的ecs一样，相同的entity还是并排存放。
+3. Entity同样是增长的，一个list存放了Entity的version， 一个list存放了entity所在的chunk已经chunk中的位置。 我估计chunk中的内存都是并排的，没有缝隙，删除一个之后，不会留空。提高效率。但是删除的效率就不是很高。 allocate效率高，尤其是allocate多个的时候。
+4. 里面大量使用了strcut指针，申请的内存是native内存。是个native地址，强转城struct*，这样操作都是针对native内存操作。 没有gc，同样避免了struct大量拷贝。
+5. chunk里面保存着一个archtype对象，archType对象中保存着所有的chunk。
+6. enitycomponetStore中保存了 archeType列表，
+7. filter是通过archeType来实现的，只要知道跟哪些archeType 匹配，就遍历它的chunk就是了。
