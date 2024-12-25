@@ -105,3 +105,5 @@ urp的代码结构还可以，可以考虑借鉴。
     6. 调用 EndContextRendering() => RenderPipelineManager.EndContextRendering(), 触发RenderPipelineManager.endFrameRendering，RenderPipelineManager.endCameraRendering
     
 8. 所以看完整个流程，我们发现我们代码层面仅仅是配置一个流程，很多api还是调用unity的，比如DrawObjectsPass。不过大致可以让我们知道unity渲染的一些流程罢了。
+    1. 你可以自定义pass， 放在renderfeature中，然后它就会加入进去进行渲染。（比如迷雾）
+    2. 自定义VolumeComponent， 来自定义一个后处理。
