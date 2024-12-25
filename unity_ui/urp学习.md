@@ -107,3 +107,4 @@ urp的代码结构还可以，可以考虑借鉴。
 8. 所以看完整个流程，我们发现我们代码层面仅仅是配置一个流程，很多api还是调用unity的，比如DrawObjectsPass。不过大致可以让我们知道unity渲染的一些流程罢了。
     1. 你可以自定义pass， 放在renderfeature中，然后它就会加入进去进行渲染。（比如迷雾）
     2. 自定义VolumeComponent， 来自定义一个后处理。
+    3. 你还可以做一个新的renderer。比如2DRenderer，来添加，修改，删除一些流程。 比如你可以不绘制skybox😂。你需要把universalRenderData改成Renderer2DData，就可以了。
