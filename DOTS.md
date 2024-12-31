@@ -147,3 +147,7 @@ ECS中有一个World对象。
 5. chunk里面保存着一个archtype对象，archType对象中保存着所有的chunk。
 6. enitycomponetStore中保存了 archeType列表，
 7. filter是通过archeType来实现的，只要知道跟哪些archeType 匹配，就遍历它的chunk就是了。
+
+
+## 代码探究 1.24版本。
+1. 
