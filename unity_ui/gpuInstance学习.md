@@ -44,4 +44,5 @@ OpenGL ES 3.1 功能（D3D 平台上的 DX11 SM5.0，只是没有曲面细分着
         2. 会去调用 UNITY_INSTANCING_PROCEDURAL_FUNC，这个就是我们 #pragma instancing_options procedural:setup 对应的setup。
         3. 同时它还会调用UnitySetupCompoundMatrices，具体的逻辑就是帮你设置好 那些关键矩阵，主要是跟model相关的。（新版本没有这个消耗了）
 
-    2.如果想在fragmentshader中使用，需要fragment输入也包含UNITY_VERTEX_INPUT_INSTANCE_ID，然后使用UNITY_TRANSFER_INSTANCE_ID() 从appdata传递给fragment的输入。再在fragmentshader中使用UNITY_SETUP_INSTANCE_ID() 来初始化unity_InstanceID。
+    2. 如果想在fragmentshader中使用，需要fragment输入也包含UNITY_VERTEX_INPUT_INSTANCE_ID，然后使用UNITY_TRANSFER_INSTANCE_ID() 从appdata传递给fragment的输入。再在fragmentshader中使用UNITY_SETUP_INSTANCE_ID() 来初始化unity_InstanceID。
+    3. 这个流程中难点是什么：设备兼容性啊。 需要 SHADER_TARGET > 4.5才能使用。
