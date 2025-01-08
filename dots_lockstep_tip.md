@@ -21,6 +21,7 @@
 4. entity的顺序如果不一致，一般是操作的时机不同步。
 5. 在job中，random一定要每个entity一个，如果每个job一个，可能出现random这个对象的操作不同步。多线程问题。不能保证都一样多的线程。
 6. SuspendController的状态不一定是一致的。
+7. 2022的新版本的dots需要增加一个宏 ： ENTITY_STORE_V1 ， 不然会出现不同步。
 
 
 ## c++中的不同步。
