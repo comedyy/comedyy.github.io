@@ -55,6 +55,7 @@ ECS中有一个World对象。
    它需要时很少变动的对象。EntityManager.GetAllUniqueSharedComponents() 这个api来查询。内存开销较小。
 
    
+5. 这里有个东西是systemStatecomponent, 由某个system创建的systemStatecomponent 只能由某个system销毁，同时销毁它的resources。 ❓ 其实还是不是很清楚。
    
    这里重点讲一下StructBaseEcs。
    
