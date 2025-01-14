@@ -14,3 +14,4 @@
             1. 如果贴图设定为srgb，那么贴图sample之后获得的是linear颜色值。
             2. 如果贴图是linear的话，那么就是linear值。
 4. linear 需要 安卓opengles3.0以上 ios meta。
+5. 如果你在gama空间中，你要写已给pbr效果，那么你需要把贴图进行gama转化一次。
