@@ -63,6 +63,8 @@ urp的代码结构还可以，可以考虑借鉴。
         activeRenderPipelineDisposed
         activeRenderPipelineCreated
 
+        这些回调是给外部 注册的，来实现一些效果。
+        OnBeginCameraRendering 可以用来设置一些参数，比如设置天空盒，fog，之类的。
 
 7. 调用过程：
     通过调用 UniversalRenderPipeline.Render(ScriptableRenderContext renderContext, List<Camera> cameras) 来调用。

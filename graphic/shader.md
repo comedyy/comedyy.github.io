@@ -33,7 +33,7 @@ HLSLPROGRAM语法：
     
     struct Varyings
     {
-        float4 positionCS : SV_POSITION;  // Clip 空间的坐标，必须的，具体定义还不是很清晰 ❓
+        float4 positionCS : SV_POSITION;  // Clip 空间的坐标，必须的, 通过TransformObjectToHClip()函数得到的，就是mvp函数。得到的结果 是在一个[-1]
         float2 uv : TEXCOORD0; // 顶点的真实uv，用来采样用
         // 下面这些就随意了，根据自己的逻辑添加。
         DECLARE_LIGHTMAP_OR_SH(lightmapUV, vertexSH, 1);
@@ -58,3 +58,7 @@ HLSLPROGRAM语法：
 
 5. srp中很多宏，c语言的类型的，头大，不同平台实现方式都不一样。
     比如：TEXTURE2D() SAMPLER() SAMPLE_TEXTURE2D() 
+
+
+
+1. 开始阅读一下源码，ugui的源码开始，从shader sample开始。
