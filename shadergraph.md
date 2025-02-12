@@ -47,8 +47,9 @@ Input 节点， 输入节点。
     6. Matrix： 矩阵相关的输入。
     7. Mesh Deformation:  ???
     8. PBR:???
-    9. Scene: 场景相关的输入。
+    9. Scene: 场景相关的输入。Screen（屏幕大小）
     10. Texture： 贴图相关的输入。
+    11. Universal： urp相关的。urp sample buffer。
 
 Math 节点。数学相关的节点。
     1. Basic： Add, Divide, Multiply, Power, Square Root(开根号), Subtract
@@ -85,13 +86,13 @@ Utility 工具类
 
 UV：对uv进行修改，实现一些效果的话，通过改变uv可以很好处理。
     1. Flipbook： ？？？ 
-    2. Polar Coordinates： ？？？
+    2. Polar Coordinates： 极化坐标，？？？
     3. Radial Shear：？？？
     4. Rotate： 旋转, 可以让输入的uv发生旋转。
     5. Spherize： 球面化？？？
-    6. Tiling And Offset：？？？
+    6. Tiling And Offset： 偏移uv，uv缩放。
     7. Triplanar 
-    8. Twirl 
+    8. Twirl 扭曲旋转一个图片。
     9. Parallax Mapping
     10. Parallax Occlusion Mapping
 
@@ -111,3 +112,11 @@ shadergraph的实现原理：
         3. sprite 除了rgb，还有一个a。
     
 1. 有些节点也提供查看源码的方式，右键节点，view generated code。
+
+制作FullScreenEffect.使用 Twirl几点来做屏幕扭曲的效果。
+1. 需要使用feature来定义这个效果，urp的renderer中增加一个feature。 FullScreenPassRendererFeature， feature注意需要 fetch color buffer。
+2. 把Inject point 修改成 afterpostprocess。然后使用shadergraph写一个shadergraph，
+3. shadergraph中 创建 twirl节点，然后连接到 universal/urp sample buffer，这个节点选择blit。
+4. 这样就可以了。
+
+注意setFloat之类的参数的时候，设置property的时候，需要去shadergraph上看一下，property的真实名字，大概率不是property名。
