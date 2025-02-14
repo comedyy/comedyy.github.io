@@ -120,3 +120,5 @@ shadergraph的实现原理：
 4. 这样就可以了。
 
 注意setFloat之类的参数的时候，设置property的时候，需要去shadergraph上看一下，property的真实名字，大概率不是property名。
+
+
