@@ -52,3 +52,19 @@ Command： 这些commond同样可以用在pass底下，这样就控制不同的�
     12. ZTest: [Less] default
     13. ZWrite：[On] [Off] default On
 
+HLSL 如何在unity中使用。
+    1. 预处理标签
+        1. #include， #include_with_pragmas
+        2. #pragma
+            1. #pragma vertex, fragment, geometry, hull, domain， 定义一些入口函数。
+            2. #pragma multi_compile, shader_feature 定义keyword， 同时还有一些 shader_feature_local之类的。 _local 的话只针对当前的shader的关键字，而不是全局的，shader_feature是全局的。
+            3. #pragma target, require ， 默认是 target 2.5， require derivatives. shader需要机器的shader 支持什么版本。
+            4. #pragma only_renderers, exclude_renderers 
+            5. #pragma instancing_options, 
+            6. #pragma enable_d3d11_debug_symbols 生产debug信息。
+            7. #pragma skip_optimizations 跳过优化
+            8. #pragma disable_fastmath meta平台需要，更好处理nan
+            9. #pragma editor_sync_compilation 需要是编辑器上sync compile
+            10.#pragma enable_cbuffer ： enable cbuffer 就算平台不支持cbuffer
+    
+
