@@ -157,7 +157,12 @@ HLSL 如何在unity中使用。
                 4. 我们可以同时指定一个sampler的类型。override texture的设定。
                     SamplerState my_point_clamp_sampler; 这个就定义了 sampler类型是 point，并且是clamp的。
                     然后使用 _MainTex.Sample(my_point_clamp_sampler, uv);
-            
+        4. 不同平台的一些不同。
+            1. renderTexture坐标： opengl跟dx有uv的垂直方向的起点不同，opengl是从下面开始，dx是从上面开始，unity使用opengl的，在dx里面自动翻转
+            2. image effects： 
+            3. ？？？
+            4. half在桌面端都会被转成float
+        5. 
 
 
     
