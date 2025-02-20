@@ -29,6 +29,13 @@ Pass:
     2. Tag:
         buildin
             1. LightMode 
+                1. Always： default
+                2. ForwardBase: 基础的方向光。
+                3. ForwardAdd： 额外的像素光
+                4. Deferred：
+                5. ShadowCaster： 用来生成shadowmap，应该是它可以投影阴影就可以。
+                6. Meta: bake lightmap用的。
+                7. 
             2. PassFlags:
             3. RequireOptions 
     3. shader program
@@ -58,7 +65,7 @@ HLSL 如何在unity中使用。
         2. #pragma
             1. #pragma vertex, fragment, geometry, hull, domain， 定义一些入口函数。
             2. #pragma multi_compile, shader_feature 定义keyword， 同时还有一些 shader_feature_local之类的。 _local 的话只针对当前的shader的关键字，而不是全局的，shader_feature是全局的。
-            3. #pragma target, require ， 默认是 target 2.5， require derivatives. shader需要机器的shader 支持什么版本。
+            3. #pragma target, require ， 默认是 target 2.5（opengles2.0）， require derivatives. shader需要机器的shader 支持什么版本。target 2.0 是 unity支持的所有机型
             4. #pragma only_renderers, exclude_renderers 
             5. #pragma instancing_options, 
             6. #pragma enable_d3d11_debug_symbols 生产debug信息。

@@ -117,3 +117,157 @@ urp的代码结构还可以，可以考虑借鉴。
 
 9. ShaderLibrary
     
+
+10. Rendering Debugger 用于监控渲染的窗口
+    1. 
+
+11. CommandBuffer.EnableEnableShaderKeyword("DEBUG_DISPLAY") 打开全局的shader macro
+    CommandBuffer.SetGlobalFloat(Shader.PropertyToID("_DebugMaterialMode"), 1);  这个
+    ```
+        int _DebugMaterialMode; 这个定义在DebuggingCommon.hlsl中
+    ```
+
+
+struct Attributes  // 顶点输入。
+{
+    float4 positionOS    : POSITION;
+    float3 normalOS      : NORMAL;
+    float4 tangentOS     : TANGENT;
+    float2 texcoord      : TEXCOORD0;
+    float2 staticLightmapUV    : TEXCOORD1;
+    float2 dynamicLightmapUV    : TEXCOORD2;    // ???
+    UNITY_VERTEX_INPUT_INSTANCE_ID
+};
+
+顶点着色器：
+
+
+
+struct Varyings // 输入到fragment中的参数
+{
+    float2 uv                       : TEXCOORD0;
+
+    float3 positionWS                  : TEXCOORD1;    // xyz: posWS
+
+    #ifdef _NORMALMAP
+        half4 normalWS                 : TEXCOORD2;    // xyz: normal, w: viewDir.x
+        half4 tangentWS                : TEXCOORD3;    // xyz: tangent, w: viewDir.y
+        half4 bitangentWS              : TEXCOORD4;    // xyz: bitangent, w: viewDir.z
+    #else
+        half3  normalWS                : TEXCOORD2;
+    #endif
+
+    #ifdef _ADDITIONAL_LIGHTS_VERTEX
+        half4 fogFactorAndVertexLight  : TEXCOORD5; // x: fogFactor, yzw: vertex light
+    #else
+        half  fogFactor                 : TEXCOORD5; // 通过雾的参数来计算出当前顶点雾的浓度。
+    #endif
+
+    #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
+        float4 shadowCoord             : TEXCOORD6;
+    #endif
+
+    DECLARE_LIGHTMAP_OR_SH(staticLightmapUV, vertexSH, 7);
+
+#ifdef DYNAMICLIGHTMAP_ON
+    float2  dynamicLightmapUV : TEXCOORD8; // Dynamic lightmap UVs
+#endif
+
+    float4 positionCS                  : SV_POSITION;
+    UNITY_VERTEX_INPUT_INSTANCE_ID
+    UNITY_VERTEX_OUTPUT_STEREO
+};
+
+12. urp shader的editor
+    1. Surface Type: Transparent vs Opaque. 主要是alpha输出多少，如果是opaque而且没有alphatest的时候，直接输出1.0，Transparent的情况输出正常alpha。
+    2. RenderFace: 就是Cull选项。
+    3. AlphaClipping: 增加_ALPHATEST_ON选项， Threshold：底层并不是真正使用clip函数来实现，而是使用alpha来实现。
+    4. receiveShadow: 通过控制整个开关： _RECEIVE_SHADOWS_OFF， 来实现是否渲染shadow到它身上
+    _NORMALMAP(有_BumpMap的时候就会被设置), _EMISSION(emission color被设置的时候会打开)
+
+    InputData:  
+    {
+        positionWS, normalWS, viewDirectionWS, 
+        shadowCoord, 如果定义MAIN_LIGHT_CALCULATE_SHADOWS，去计算。定义REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR，直接取input.shadowCoord,否者返回0
+        fogCoord,  // 雾的深度百分比。  
+        vertexLighting, 有 _ADDITIONAL_LIGHTS_VERTEX，返回input.fogFactorAndVertexLight.yzw，否者（0，0，0）
+        bakedGI(烘焙的灯光颜色), 
+        normalizedScreenSpaceUV, 
+        shadowMask， 1.烘焙情况下。去烘焙贴图取，2. 没有烘焙的话 返回 unity_ProbesOcclusion，3.否和返回（1，1，1，1）
+    }
+    SurfaceData: InitializeSimpleLitSurfaceData
+    {
+        albedo, specular, metallic, smoothness, normalTS, emission, occlusion, alpha, clearCoatMask, clearCoatSmoothness
+    }
+
+    struct Light
+    {
+        half3   direction;
+        half3   color;
+        float   distanceAttenuation; // full-float precision required on some platforms， 如果光线被裁剪，变成0，否者是1. unity_LightData.z
+        half    shadowAttenuation; // shadow衰减。
+        uint    layerMask;
+    };  
+
+    _ALPHAPREMULTIPLY_ON：blinnphong中，alpha可以乘以 albedo。
+    _SPECGLOSSMAP 或者 _SPECULAR_COLOR： 是否需要计算高光。
+    
+    使用InputData和SurfaceData来进行光照计算。
+    我看看他们如何使用这些材料进行计算。
+    1. 计算ssao如果有的话，没有的话就默认。需要开启 _SCREEN_SPACE_OCCLUSION， !_SURFACE_TYPE_TRANSPARENT. 才可以，去使用normalizedScreenSpaceUV去_ScreenSpaceOcclusionTexture 采样。 获得一个
+        AmbientOcclusionFactor{ 
+            indirectAmbientOcclusion, // 跟需要比surfacedata中的occlusion小。(simple lit 中，occlusion = 1)
+            directAmbientOcclusion   // 通过 lerp(half(1.0), ssao, _AmbientOcclusionParam.w); 获得。 _AmbientOcclusionParam 应该是程序赋值。
+        }
+    2. GetMainLight() 获取主光源。
+        正常主光源就是从方向光来的，unity那里设置的，distanceAttenuation 在forward中，如果光被剔除掉落，值是0，否者是1.
+        shadowAttenuation 1.0 ， layermask 用来干嘛？
+        通过 MainLightShadow() 去计算 shadowAttenuation， 阴影的衰减把。 
+            实时阴影：
+                1. （未开启阴影）没有定义 MAIN_LIGHT_CALCULATE_SHADOWS 就 返回1.0，
+                2. （光照贴图）定义_MAIN_LIGHT_SHADOWS_SCREEN 和 !_SURFACE_TYPE_TRANSPARENT,就 SampleScreenSpaceShadowmap(), 去采样 shadowmap，_ScreenSpaceShadowmapTexture
+                3. （实时阴影）否者去采样 _MainLightShadowmapTexture， 是主灯源的shadowmap。
+            bake的阴影
+            mainlight shadow。？？
+            最后三个阴影混合，如果 LIGHTMAP_SHADOW_MIXING，就进行混合，不然就直接lerp？
+        
+    3. CalculateBlinnPhong() 通过blinnphong计算， 通过lightcolor， light.distanceAttenuation * light.shadowAttenuation, 来计算最后的lightcolor。
+        计算主灯光的blinnphong颜色（mainLightColor），然后一次计算所有的额外灯光，（additionalLightsColor），然后计算顶点光，gibaked颜色是烘焙的灯光。
+
+        组装成一个LightingData 对象，然后通过lightingData对象生成最后的颜色。
+            1. giColor， mainLightColor， additionalLightsColor， vertexLightingColor， emissionColor 都加起来。
+        emissionColor 是直接发射的光的颜色。 不需要跟光照计算的。
+
+    4. 计算fog 通过fogCoord来判断雾的值。
+    5. 输出alpha。（通过_Surface选项）
+
+    总结流程。
+    1. vertex 阶段，先去计算 Varyings 对象，
+         normal, uv, ws, cs, fogFactor, shadowCoord 如果需要的话。
+    2. fragment阶段。
+        1. 生成InputData（顶点输入来的。）， 
+            计算normal， shadowCoord， fogCoord，vertexLighting, bakedGI(通过normal在烘焙的光照贴图中获得？)， shadowMask（通过烘焙的阴影）， 
+        2. surfaceData（材质输入）
+        3. 计算总的BlinnPhong颜色UniversalFragmentBlinnPhong
+            1. 计算aoFactor信息。 indirectAmbientOcclusion, directAmbientOcclusion, 如果有贴图就采样，没有就1
+            2. 获取光源信息。Light:direction,distanceAttenuation, shadowAttenuation, color, layerMask.
+            3.  主光源 计算 CalculateBlinnPhong
+                1. 通过各种衰减算出最后的灯光颜色
+                2. Lambert输出漫反射颜色。
+                3. 如果有定义高光，就计算高光颜色。
+                4. 漫反射*albedo + specular
+            4. 多光源遍历遍历上面操作。
+            5. 混合所有灯光颜色：giColor， mainLightColor， additionalLightsColor， vertexLightingColor， emissionColor 
+            6. 它没有计算ambient，但是它有计算bakedgi。光线探针。
+        4. fog计算，
+        5. alpha计算。
+        
+
+    了解overdraw的那个view是怎么实现的，要怎么做我们才能看到我们的overdraw。
+    
+    环境光遮蔽： ambient occlusion， 氛围直接遮蔽和间接遮蔽？ directAmbientOcclusion indirectAmbientOcclusion， ssao 是不是screen space ambient occlusion。_AmbientOcclusionParam
+
+    _SCREEN_SPACE_OCCLUSION _SURFACE_TYPE_TRANSPARENT
+    _ScreenSpaceOcclusionTexture
+    
+
