@@ -179,7 +179,7 @@ struct Varyings // 输入到fragment中的参数
 };
 
 12. urp shader的editor
-    1. Surface Type: Transparent vs Opaque. 主要是alpha输出多少，如果是opaque而且没有alphatest的时候，直接输出1.0，Transparent的情况输出正常alpha。
+    1. Surface Type: Transparent vs Opaque. 主要是alpha输出多少，如果是opaque而且没有alphatest的时候，直接输出1.0，Transparent的情况输出正常alpha。 也影响它在哪个pass执行。如果是opaque，就在不透明的时候渲染，否者久在Transparent层渲染。
     2. RenderFace: 就是Cull选项。
     3. AlphaClipping: 增加_ALPHATEST_ON选项， Threshold：底层并不是真正使用clip函数来实现，而是使用alpha来实现。
     4. receiveShadow: 通过控制整个开关： _RECEIVE_SHADOWS_OFF， 来实现是否渲染shadow到它身上
@@ -271,3 +271,9 @@ struct Varyings // 输入到fragment中的参数
     _ScreenSpaceOcclusionTexture
     
 
+    1. 基本理解了 overdraw的流程了。
+        1. 如果overdraw打开的情况下，opaque的对象会 修改blend模式，修改成 blend one，one，就是如果他们都能成功写入深度缓冲区的话，颜色就叠加。（这些是在URP的RenderObjectPass中设置的） 
+        2. Transparent 应该也是同样的方式。
+        3. 最后bit一下屏幕，然后拿去后处理，根据屏幕上的颜色，来计算出重绘的次数，进而把重绘的颜色输出。
+        4. 它还有一个选项是 重绘最大次数，设置完之后，debugColor = (1, 1, 1) / N, 然后通过判断debugColor的颜色，来判定重绘次数。
+        5. DrawObjectsPass中，判断当前设置的overdraw跟当前渲染的是否一样。 如果一样，设置成blend one one，否者设置成blend one zero（只有一次重绘）
