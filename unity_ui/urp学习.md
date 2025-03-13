@@ -277,3 +277,22 @@ struct Varyings // 输入到fragment中的参数
         3. 最后bit一下屏幕，然后拿去后处理，根据屏幕上的颜色，来计算出重绘的次数，进而把重绘的颜色输出。
         4. 它还有一个选项是 重绘最大次数，设置完之后，debugColor = (1, 1, 1) / N, 然后通过判断debugColor的颜色，来判定重绘次数。
         5. DrawObjectsPass中，判断当前设置的overdraw跟当前渲染的是否一样。 如果一样，设置成blend one one，否者设置成blend one zero（只有一次重绘）
+        
+    2. 关于反射光照探针（终于弄清楚）
+        1. 它是一个范围，可以是方形，也可以是球形。 用来采集当前范围内的颜色，存放在一个cubemap中，然后当有玩家走过去的时候，可以把这些颜色给应用到玩家的身上。
+        2. 方形适合室内，原型适合室外，可以是烘焙的，也可以实时的。 所有的东西都可以烘焙出颜色。但是如果需要接收反射光照探针的光的话，需要shader支持，urp中simplelit不支持，但是lit支持。
+        3. urp计算光照的时候，有个参数是 bakedGI，它是环境光 + 环境光贴图，阴影贴图之类的合并成的光。
+        4. 所以环境光再simplelit 跟lit中都是由用作的，都是通过bakedGI传入的。
+
+    3. 关于制作一个ui背景板，模拟场景渲染。
+        1. 监听urp的渲染事件，需要监听 RenderPipelineManager.endCameraRendering 这个事件，
+        ```
+            // 获取到颜色贴图
+            var cameraColorTexture = Shader.GetGlobalTexture("_CameraColorTexture");
+            // 拷贝一份到贴图。
+            Graphics.Blit(cameraColorTexture, _renderTexture);
+        ```
+        这样获取到 _renderTexture，就可以作为背景了。
+    4. 全局光照和局部光照
+        1. 局部光照模型: blinnphong 和pbr。
+        2. 全局光照的话，需要考虑物体表面的光线放射。需要反射光照探针等手段收集。

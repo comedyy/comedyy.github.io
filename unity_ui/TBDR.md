@@ -18,3 +18,5 @@
 
 gpu时间超过10ms手机发热的概率很大。
 
+Tile memory：用来存放tile的color，depth，stencil
+纹理缓存： 用来存档texture采样的数据。 使用astc，或者使用mipmap的时候，更小尺寸的texure可以更好的命中缓存。

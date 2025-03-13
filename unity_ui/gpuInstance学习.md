@@ -46,3 +46,28 @@ OpenGL ES 3.1 功能（D3D 平台上的 DX11 SM5.0，只是没有曲面细分着
 
     2. 如果想在fragmentshader中使用，需要fragment输入也包含UNITY_VERTEX_INPUT_INSTANCE_ID，然后使用UNITY_TRANSFER_INSTANCE_ID() 从appdata传递给fragment的输入。再在fragmentshader中使用UNITY_SETUP_INSTANCE_ID() 来初始化unity_InstanceID。
     3. 这个流程中难点是什么：设备兼容性啊。 需要 SHADER_TARGET > 4.5才能使用。
+
+5. Graphics.DrawMeshInstancedIndirect vs Graphics.DrawMeshInstanced，里面得Indirect是什么意思，是间接绘制得意思。
+    Indirect需要把数据放在computebuffer中，上传到gpu中，然后Draw得时候无需上传数据，如果这个数据是静态得，那性能很好。期间你就不需要一直上传数据，比如相机没有变动镜头，你这个draw是绘制场景上得静态物体。
+    而DrawMeshInstanced每帧都要上传数据，物体得各种属性。
+    
+6. 使用struct来组织，可以更好的减少ComputeShader.SetData的次数，以及优化shader中的cache命中率。
+    1. c#定义一个结构体： 
+        struct TransformData
+        {
+            public float4 position;
+            public quaternion quaternion;
+            public float4 scale;
+        }
+    shader中同样设置一个
+            struct TransformData{
+                float4 position;
+                float4 quaternion;
+                float4 scale;
+            };
+    然后在shader中声明ssbo StructuredBuffer<TransformData> transformDataBuffer;
+    然后c#中设置computebuffer：
+            m_TransformData = new ComputeBuffer(kPreallocatedBufferSize, System.Runtime.InteropServices.Marshal.SizeOf(typeof(TransformData)));
+            m_Material.SetBuffer("transformDataBuffer", m_TransformData);
+            m_TransformData.SetData(xxx, 0, 0, count);
+
