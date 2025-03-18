@@ -12,7 +12,7 @@ OpenGL ES 3.1 功能（D3D 平台上的 DX11 SM5.0，只是没有曲面细分着
 在 DX11+ SM5.0、OpenGL 4.3+、OpenGL ES 3.1、Metal、Vulkan 和 PS4/XB1 游戏主机上支持。
 有计算着色器、随机访问纹理写入、原子等。没有几何着色器和曲面细分着色器。
 
-所以就是 opengl3.1以上就可以使用。
+所以就是 opengl3.1以上就可以使用。 (支持computebuffer？)
 
 
 1. 准备数据。

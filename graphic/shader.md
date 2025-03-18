@@ -6,7 +6,7 @@ HLSLPROGRAM语法：
 ```
 #pragma vertex vert
 #pragma fragment frag  // 定义入口
-#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl" // 核心库
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"  // include文件
 #define kDieletricSpec half4(0.04, 0.04, 0.04, 1.0 - 0.04)  // 定义常量
 ```
