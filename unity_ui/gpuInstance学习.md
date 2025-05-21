@@ -71,3 +71,18 @@ OpenGL ES 3.1 功能（D3D 平台上的 DX11 SM5.0，只是没有曲面细分着
             m_Material.SetBuffer("transformDataBuffer", m_TransformData);
             m_TransformData.SetData(xxx, 0, 0, count);
 
+## Graphics.DrawMeshInstanced
+    这个函数shader需要特殊处理。
+    0. 需要有 #pragma multi_compile_instancing // 启用 GPU Instancing 
+    1. 需要定义instanceId和传递instanceid, 需要申明在appdata中，然后可以在顶点着色器中使用，如果你想它在像素着色器中做，那么需要传递给像素着色器。
+        1. UNITY_SETUP_INSTANCE_ID(v); // 设置实例 ID , 设置全局unity_InstanceID，这样你以后可以用这个id来读取数据。
+        2. UNITY_TRANSFER_INSTANCE_ID(v, o); // 传递实例 ID, 把他传递给fragmentshader
+        3. UNITY_ACCESS_INSTANCED_PROP(Props, _Color) // GPU Instancing，似乎都是用Prop这个cbuffer。所以你会看到宏名字，还是其它的都是使用Prop，是通过Prop这个查找名字叫Prop的cbuffer。从中拿到_Color的数组，然后通过 unity_InstanceID索引到具体值。
+        4. cbuffer在哪里定义的呢？
+            UNITY_INSTANCING_BUFFER_START(Props)    // cbuffer Prop{
+                UNITY_DEFINE_INSTANCED_PROP(float4, _Color) // float4 _Color[N]
+            UNITY_INSTANCING_BUFFER_END(Props) // }
+    2. 我们在cpu需要使用materialblock来传递这个cbuffer数据。
+        props.SetVectorArray("_Color", colors); 没帧都需要设置。
+
+    综上，其实还是在渲染的时候，把数据都上传到cbuffer中，然后通过instance索引来访问。
