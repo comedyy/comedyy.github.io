@@ -1,3 +1,17 @@
+## emoji 
+```
+    // Input，Text中都有一个emojies的Dictionary用来存储当前的char对应的emoji。
+    _emojies = new Dictionary<uint, Emoji>();
+    for (uint i = 0x1f600; i < 0x1f637; i++)
+    {
+        string url = UIPackage.GetItemURL("Emoji", Convert.ToString(i, 16));
+        if (url != null)
+            _emojies.Add(i, new Emoji(url));
+    }
+    _input2.emojies = _emojies;
+```
+这样就可以显示带有emoji的字符串了
+
 ## cutScene
 ``` 动态加载ui
     _cutSceneView = UIPackage.CreateObject("CutScene", "CutScene").asCom;
@@ -155,3 +169,38 @@
         item.GetChild("b1").onClick.Set(OnClickDelete);
     }
 ```
+
+
+## 代码分析
+1. EventDispatcher: 很多对象的基类，用来处理事件的派发，它内部有一个Dictionary<string, EventBridge>, 别人可以注册任意的事件，
+日入GObject就定义了不少的事件：
+EventListener _onClick;
+EventListener _onRightClick;
+EventListener _onTouchBegin;
+EventListener _onTouchMove;
+EventListener _onTouchEnd;
+EventListener _onRollOver;
+EventListener _onRollOut;
+EventListener _onAddedToStage;
+EventListener _onRemovedFromStage;
+EventListener _onKeyDown;
+EventListener _onClickLink;
+EventListener _onPositionChanged;
+EventListener _onSizeChanged;
+EventListener _onDragStart;
+EventListener _onDragMove;
+EventListener _onDragEnd;
+EventListener _onGearStop;
+EventListener _onFocusIn;
+EventListener _onFocusOut;
+
+每个 组件自己去定义自己的 事件，比如 GButton 就定义了
+
+
+## 编辑器使用。
+1. component： component是相当于unity中的prefab，但是它跟prefab又有点不同，prefab是可以暴露所有的属性，而component只能暴露出`控制器`和自定义属性，以及componet对应的类型的属性。
+    1. 控制器
+    2. 自定义属性
+    3. component扩展的属性： 注意的是component的扩展对命名有要求
+2. 如果需要是使用textmeshpro，需要注意以下几点。
+    1. fgui的editor下，字体设置成 sdfaa, 然后在unity中做两个操作。1. 把对应名字的tmp_fontAsset 放到Resources/Fonts 目录下。2. 添加宏： FAIRYGUI_TMPRO
