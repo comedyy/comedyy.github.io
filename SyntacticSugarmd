@@ -1,0 +1,36 @@
+# 语法糖实现
+
+1. foreach的实现：
+```
+List<int> list = new List<int> { 1, 2, 3 };
+foreach (var x in list)
+{
+    Console.WriteLine(x);
+}
+```
+变成
+```
+List<int> list = new List<int> { 1, 2, 3 };
+var enumerator = list.GetEnumerator();
+try
+{
+    while (enumerator.MoveNext())
+    {
+        int x = enumerator.Current;
+        Console.WriteLine(x);
+    }
+}
+finally
+{
+    // 释放枚举器
+    ((IDisposable)enumerator).Dispose();
+}
+```
+
+编译器看到有 GetEnumerator() 且返回一个有 MoveNext() 和 Current 的类型，就自动生成循环代码
+
+2. async && await
+详情见： asyn_await.md
+编辑器帮忙生成一个状态机。把每个代码段放一个状态上，每个状态执行完了，自动跳转到另外一个状态。
+
+3. 

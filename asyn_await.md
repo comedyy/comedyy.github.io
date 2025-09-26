@@ -80,15 +80,13 @@ static async void asyncRun()
 class JJ : ICriticalNotifyCompletion
 // 或者是ICriticalNotifyCompletion， 它的回回调是 UnsafeOnCompleted
 {
-    int i = 0;
     // 如果返回true，不会回调 UnsafeOnCompleted，
     // 如果返回false，会调用UnsafeOnCompleted，把回调传给你， 让你自己爱怎么做怎么做，然后做完记得回调函数就是了
     public bool IsCompleted         
     {
         get{
-            Debug.LogError("isComplete");
-            i++;
-            return i > 10;
+           // 当前是否完成，一般初始的时候调用。判断是否要挂起调用，还是直接调用。
+           return false; 
         }
     }
 
@@ -102,15 +100,26 @@ class JJ : ICriticalNotifyCompletion
     // IsCompelte == false的时候，并且无ICriticalNotifyCompletion接口的时候调用
     public void OnCompleted(Action continuation)
     {
-        continuation();// 继续往下执行， 更正确的做法是保存起来，等任务完成的时候再回调
+        // IsCompleted 是完成状态了，那么我们就直接完成事件。
+        continuation();
         Debug.Log("oncomplete");
     }
 
+    Action _completeCallback = null;
     // IsCompelte == false的时候，并且是ICriticalNotifyCompletion接口的时候调用， 
     public void UnsafeOnCompleted(Action continuation)
     {
-        continuation();	// 继续往下执行， 更正确的做法是保存起来，等任务完成的时候再回调
+        // continuation();	// 继续往下执行， 更正确的做法是保存起来，等任务完成的时候再回调
         Debug.Log("unsafeOnCompleted");
+        _completeCallback = continuation;
+
+        // 添加代码，事情完成的时候调用continue
+        OusiderEvent.OnFinish = OnFinish;
+    }
+
+    void OnFinish()
+    {
+        _completeCallback?.Invoke();
     }
 }
 
